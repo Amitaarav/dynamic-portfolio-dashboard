@@ -1,159 +1,282 @@
-# Turborepo starter
+# Dynamic Portfolio Dashboard
 
-This Turborepo starter is maintained by the Turborepo core team.
+A full-stack stock portfolio dashboard developed as part of the Octa Byte AI Pvt Ltd Full-Stack Intern Assignment.
 
-## Using this example
+The application aims to display stock holdings, fetch market data, calculate portfolio performance, group holdings by sector, and periodically refresh market prices.
 
-Run the following command:
+## Project Status
 
-```sh
-npx create-turbo@latest
+- [x] Set up a Turborepo monorepo
+- [x] Use Bun as the package manager and runtime
+- [x] Choose Next.js for the frontend
+- [x] Choose Express.js for the backend
+- [ ] Implement portfolio calculations and API endpoints
+- [ ] Integrate market data providers
+- [ ] Implement caching and periodic refresh
+- [ ] Build the portfolio dashboard
+- [ ] Configure CI with GitHub Actions
+- [ ] Configure CD and deployment
+
+## Objectives
+
+- Display stock holdings in a responsive portfolio table.
+- Calculate investment, present value, portfolio weight, and gain/loss.
+- Group stocks by sector and display sector-level summaries.
+- Fetch current market prices (CMP), P/E ratio, and latest earnings.
+- Refresh market prices periodically.
+- Handle provider failures, rate limits, and stale data.
+- Apply automated testing and CI/CD practices.
+
+## Technology Stack
+
+| Area | Technology | Purpose |
+|---|---|---|
+| Monorepo | Turborepo | Manage applications and shared packages |
+| Package manager | Bun | Dependency installation and scripts |
+| Frontend | Next.js | Dashboard and routing |
+| UI | React, TypeScript | Components and type safety |
+| Styling | Tailwind CSS | Responsive design |
+| Server state | TanStack Query (planned) | Caching, refetching, async states |
+| Backend | Node.js, Express.js | REST API and business logic |
+| Shared code | TypeScript package (planned) | Shared types and schemas |
+| CI | GitHub Actions (planned) | Automated quality checks |
+| CD | To be decided | Application deployment |
+
+## Architecture
+
+The project uses a monorepo to manage the frontend and backend in one repository.
+
+```text
+portfolio-dashboard/
+├── apps/
+│   ├── frontend/             # Next.js frontend
+│   └── api/             # Express backend
+├── packages/
+│   └── shared/          # Shared types and schemas (planned)
+├── .github/
+│   └── workflows/       # CI/CD workflows (planned)
+├── package.json
+├── bun.lock
+├── turbo.json
+└── README.md
 ```
 
-## What's inside?
+This is the intended structure. Adjust it to match the directories actually generated in the repository.
 
-This Turborepo includes the following packages/apps:
+## Prerequisites
 
-### Apps and Packages
+- Git
+- Bun installed locally
+- A GitHub repository for version control and GitHub Actions
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `@next/eslint-plugin-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+Use the same Bun version locally and in CI.
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+## Setup Followed
 
-### Utilities
+### 1. Initialize the monorepo
 
-This Turborepo has some additional tools already setup for you:
+Create a repository using Turborepo and Bun.
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+The repository contains separate applications for the frontend and backend, with the option to add shared packages.
 
-### Build
+### 2. Configure the frontend
 
-To build all apps and packages, run the following command:
+Use Next.js with the App Router, TypeScript, and Tailwind CSS.
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+The frontend is responsible for:
+- Rendering the portfolio dashboard.
+- Displaying stock and sector summaries.
+- Managing loading, error, and refresh states.
+- Consuming the Express API.
 
-```sh
-cd my-turborepo
-turbo build
+### 3. Configure the backend
+
+Use Node.js and Express.js for the API.
+
+The backend is responsible for:
+- Providing portfolio data through REST endpoints.
+- Fetching and normalizing market data.
+- Performing portfolio calculations.
+- Handling provider failures and caching.
+
+### 4. Install dependencies
+
+Run from the repository root:
+
+```bash
+bun install
 ```
 
-Without global `turbo`, use your package manager:
+Commit the generated `bun.lock` file so local development and CI can use a consistent dependency lockfile.
 
-```sh
-cd my-turborepo
-npx turbo build
-bun exec turbo build
-bun exec turbo build
+### 5. Run the applications
+
+The exact commands depend on the scripts configured in the root and application-level `package.json` files.
+
+Once configured, the intended development command is:
+
+```bash
+bun run dev
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+This should start the applications through Turborepo.
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+## Portfolio Requirements
 
-```sh
-turbo build --filter=docs
+The dashboard will contain the following columns:
+
+1. Particulars (stock name)
+2. Purchase Price
+3. Quantity
+4. Investment
+5. Portfolio weight (%)
+6. NSE/BSE
+7. Current Market Price (CMP)
+8. Present Value
+9. Gain/Loss
+10. P/E Ratio
+11. Latest Earnings
+
+### Financial calculations
+
+- Investment = Purchase Price × Quantity
+- Present Value = CMP × Quantity
+- Gain/Loss = Present Value − Investment
+- Portfolio Weight (%) = Investment ÷ Total Investment × 100
+- Return (%) = Gain/Loss ÷ Investment × 100, when investment is non-zero
+
+Sector summaries will aggregate investment, present value, and gain/loss across holdings in each sector.
+
+Gains will be displayed in green and losses in red.
+
+## Market Data Strategy
+
+The assignment specifies:
+- Yahoo Finance for CMP.
+- Google Finance for P/E ratio and latest earnings.
+
+Neither source provides the public official API described in the assignment. Their unofficial integrations may be restricted or break when the underlying websites change.
+
+The backend will isolate provider-specific integrations behind separate adapters. Responses will be normalized before being used by portfolio calculations.
+
+The implementation will account for:
+- API timeouts and errors.
+- Rate limiting.
+- Missing or invalid data.
+- Cache expiry and stale data.
+- Provider failures and fallback behavior.
+
+Market data should not be presented as guaranteed real-time data if its freshness cannot be verified.
+
+## Caching and Refresh Strategy
+
+TanStack Query will manage frontend server state, including:
+- Query caching.
+- Loading and error states.
+- Background refetching.
+- Periodic refresh, initially targeting 15 seconds.
+
+Backend caching will independently reduce requests to external providers.
+
+A frontend refresh must not automatically trigger an external API call for every stock. The backend cache and provider request controls will determine when external data is fetched again.
+
+## Git Branching Strategy
+
+The project uses short-lived branches for individual changes.
+
+| Branch | Purpose |
+|---|---|
+| `main` | Stable, reviewed code |
+| `feat/*` | New features |
+| `fix/*` | Bug fixes |
+| `test/*` | Tests |
+| `ci/*` | CI/CD configuration |
+| `docs/*` | Documentation |
+| `chore/*` | Tooling and maintenance |
+
+Example branch names:
+
+```text
+feat/portfolio-api
+feat/portfolio-dashboard
+feat/market-data-cache
+fix/portfolio-calculation
+test/portfolio-calculations
+ci/github-actions
+docs/initial-readme
+chore/turbo-setup
 ```
 
-Without global `turbo`:
+### Feature development workflow
 
-```sh
-npx turbo build --filter=docs
-bun exec turbo build --filter=docs
-bun exec turbo build --filter=docs
+```bash
+git switch main
+git pull origin main
+git switch -c feat/portfolio-api
+
+# Implement and test your changes
+git add .
+git commit -m "feat(api): add portfolio endpoint"
+git push -u origin feat/portfolio-api
 ```
 
-### Develop
+Open a pull request targeting `main`. Run CI and resolve failures before merging.
 
-To develop all apps and packages, run the following command:
+For this project, a separate permanent `develop` branch is optional rather than required.
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+## Continuous Integration
 
-```sh
-cd my-turborepo
-turbo dev
-```
+GitHub Actions will validate changes on pull requests and pushes to `main`.
 
-Without global `turbo`, use your package manager:
+Planned checks:
 
-```sh
-cd my-turborepo
-npx turbo dev
-bun exec turbo dev
-bun exec turbo dev
-```
+1. Check out the repository.
+2. Set up the pinned Bun version.
+3. Install dependencies using the lockfile.
+4. Run linting.
+5. Run TypeScript checks.
+6. Run tests.
+7. Build the applications.
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+The workflow will be configured after the corresponding scripts exist in the root and application-level package files.
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+## Continuous Deployment
 
-```sh
-turbo dev --filter=web
-```
+CD will be configured after selecting the hosting platforms.
 
-Without global `turbo`:
+The planned deployment process includes:
+- Separate production environment variables.
+- Deployment triggered by verified changes to `main`.
+- Application health checks.
+- Post-deployment smoke tests.
+- Deployment logs and rollback considerations.
 
-```sh
-npx turbo dev --filter=web
-bun exec turbo dev --filter=web
-bun exec turbo dev --filter=web
-```
+## Documentation
 
-### Remote Caching
+Project documentation will be maintained throughout development.
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+Planned documents:
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+- `docs/architecture.md` — system architecture and request flows.
+- `docs/technical-decisions.md` — decisions and trade-offs.
+- `docs/development-log.md` — implementation progress and lessons learned.
+- `docs/testing-strategy.md` — test coverage and testing approach.
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+## Testing Strategy
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+Tests will cover:
 
-```sh
-cd my-turborepo
-turbo login
-```
+- Financial calculation formulas.
+- Sector aggregation.
+- API response validation.
+- Missing and invalid market data.
+- Upstream timeouts and failures.
+- Cache behavior and refresh logic.
 
-Without global `turbo`, use your package manager:
+## Disclaimer
 
-```sh
-cd my-turborepo
-npx turbo login
-bun exec turbo login
-bun exec turbo login
-```
+This project is for educational and informational purposes. Market data may be delayed, incomplete, or inaccurate. This dashboard is not investment advice.
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+## Assignment
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-bun exec turbo link
-bun exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+Octa Byte AI Pvt Ltd — Dynamic Portfolio Dashboard with React.js/Next.js, TypeScript, Tailwind CSS, and Node.js.
